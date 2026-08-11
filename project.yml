@@ -1,0 +1,40 @@
+name: BeautifulUI
+options:
+  bundleIdPrefix: com.beautifului
+  deploymentTarget:
+    iOS: "26.0"
+    macOS: "26.0"
+packages:
+  BeautifulUI:
+    path: .
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
+targets:
+  BeautifulUIiOSDemo:
+    type: application
+    platform: iOS
+    sources: [Examples/iOS]
+    dependencies:
+      - package: BeautifulUI
+        product: BeautifulUICatalog
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.beautifului.catalog.ios
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+  BeautifulUIMacDemo:
+    type: application
+    platform: macOS
+    sources: [Examples/macOS]
+    dependencies:
+      - package: BeautifulUI
+        product: BeautifulUICatalog
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.beautifului.catalog.macos
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.developer-tools
