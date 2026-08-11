@@ -6,6 +6,7 @@ import SwiftUI
 /// Launch the demo apps with `--video-demo` to use this presentation surface.
 public struct BeautifulUIVideoReel: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    private let initialSection: CatalogSection?
     @State private var store = CatalogStore()
     @State private var reelIndex = 0
 
@@ -13,7 +14,11 @@ public struct BeautifulUIVideoReel: View {
         CatalogSection.allCases[reelIndex]
     }
 
-    public init() {}
+    /// Creates either the full sequential reel or a still running stage for one primitive.
+    public init(section: CatalogSection? = nil) {
+        initialSection = section
+        _reelIndex = State(initialValue: section.map { $0.number - 1 } ?? 0)
+    }
 
     public var body: some View {
         VStack(spacing: 0) {
@@ -78,7 +83,7 @@ public struct BeautifulUIVideoReel: View {
 
     @MainActor
     private func advanceWhenReady() async {
-        guard !reduceMotion, reelIndex < CatalogSection.allCases.count - 1 else { return }
+        guard initialSection == nil, !reduceMotion, reelIndex < CatalogSection.allCases.count - 1 else { return }
 
         do {
             try await Task.sleep(for: presentationDuration)

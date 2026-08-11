@@ -22,7 +22,7 @@ import BeautifulUI
 Use the first stable tag in `Package.swift`:
 
 ```swift
-.package(url: "https://github.com/unlocalhosted/beautiful-ui-swift.git", from: "0.2.1")
+.package(url: "https://github.com/unlocalhosted/beautiful-ui-swift.git", from: "0.2.2")
 ```
 
 ## Start
@@ -75,9 +75,11 @@ open BeautifulUI.xcodeproj
 
 The native iPhone reel shows all 19 primitives in sequence, including their live source-faithful motion states.
 
-[Download the 81-second MP4 demo](https://github.com/unlocalhosted/beautiful-ui-swift/releases/download/0.2.1/BeautifulUI-Primitives-Demo.mp4)
+[Download the 81-second MP4 demo](https://github.com/unlocalhosted/beautiful-ui-swift/releases/download/0.2.2/BeautifulUI-Primitives-Demo.mp4)
 
-Run either demo app with `--video-demo` to render the same full-screen reel locally.
+Run either demo app with `--video-demo` to render the same full-screen reel locally. On iOS, `--video-section loading` renders a single named primitive for clip capture.
+
+[Browse every per-primitive demo clip](DEMO.md)
 
 ## Development
 
