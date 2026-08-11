@@ -54,6 +54,7 @@ struct ReferenceFineTuneDemo: View {
                                 .background(layout == index ? theme.surface : .clear, in: .rect(cornerRadius: 6))
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel("\(["row", "column", "grid"][index]) layout")
                     }
                 }
                 .padding(2)

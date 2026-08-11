@@ -52,8 +52,13 @@ struct ReferenceRecordsDemo: View {
     private var recordHeader: some View {
         HStack(spacing: 0) {
             HStack(spacing: 8) {
-                selectionBox(isSelected: selectedIDs.count == records.count)
-                    .onTapGesture { selectedIDs = selectedIDs.count == records.count ? [] : Set(records.map(\.id)) }
+                Button {
+                    selectedIDs = selectedIDs.count == records.count ? [] : Set(records.map(\.id))
+                } label: {
+                    selectionBox(isSelected: selectedIDs.count == records.count)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Select all companies")
                 Text("Company")
             }
             .frame(width: 230, alignment: .leading)
@@ -91,8 +96,13 @@ struct ReferenceRecordsDemo: View {
         let isSelected = selectedIDs.contains(record.id)
         return HStack(spacing: 0) {
             HStack(spacing: 8) {
-                selectionBox(isSelected: isSelected)
-                    .onTapGesture { toggleSelection(record.id) }
+                Button {
+                    toggleSelection(record.id)
+                } label: {
+                    selectionBox(isSelected: isSelected)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Select \(record.name)")
                 Text(record.name.prefix(1))
                     .font(.system(size: 12, weight: .bold))
                     .frame(width: 22, height: 22)

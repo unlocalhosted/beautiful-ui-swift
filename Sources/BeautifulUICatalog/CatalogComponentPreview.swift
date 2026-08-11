@@ -79,13 +79,7 @@ struct CatalogComponentPreview: View {
             }
         case .workspace:
             CatalogDemoContainer {
-                WorkspaceSidebar(
-                    workspaceName: "Creamery Ops",
-                    workspaceDetail: "Production workspace",
-                    selection: $store.workspaceDestination,
-                    onCreateTask: { store.showNotice("New task intent captured.") }
-                )
-                .frame(minHeight: 370)
+                ReferenceWorkspaceDemo()
             }
         case .search:
             CatalogDemoContainer {
@@ -93,9 +87,7 @@ struct CatalogComponentPreview: View {
             }
         case .insights:
             CatalogDemoContainer {
-                InsightCard(insights: CatalogFixtures.insights, selectedInsightID: $store.selectedInsightID) { insight in
-                    store.showNotice("Follow-up on \(insight.headline)")
-                }
+                ReferenceInsightsDemo()
             }
         case .code:
             CatalogDemoContainer {

@@ -77,6 +77,7 @@ struct ReferenceSelectionDemo: View {
                 Divider().frame(height: 16)
                 Button { state = .thinking } label: { Image(systemName: "arrow.clockwise").frame(width: 28, height: 28) }
                     .buttonStyle(ReferenceSelectionActionStyle())
+                    .accessibilityLabel("Try again")
             case .idle:
                 if !instruction.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                     TextField("Describe edits", text: $instruction)
@@ -105,6 +106,7 @@ struct ReferenceSelectionDemo: View {
                             .rotationEffect(.degrees(showsMore ? 180 : 0))
                     }
                     .buttonStyle(ReferenceSelectionActionStyle())
+                    .accessibilityLabel(showsMore ? "Show fewer actions" : "Show more actions")
                 }
             }
         }

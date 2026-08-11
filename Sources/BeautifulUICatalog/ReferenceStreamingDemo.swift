@@ -140,20 +140,35 @@ struct ReferenceStreamingDemo: View {
     }
 
     private var streamedText: some View {
-        Text(buildStreamedText())
-            .font(.system(size: 13))
-            .foregroundStyle(.primary)
-            .lineSpacing(3)
-            .overlay(alignment: .bottomLeading) {
-                if !hasFinished {
-                    Capsule()
-                        .fill(Color.primary)
-                        .frame(width: 2, height: 12)
-                        .offset(x: cursorOffset, y: 7)
-                        .transition(.opacity)
+        ReferenceInlineFlow(spacing: 4, lineSpacing: 3) {
+            ForEach(Array(tokens.prefix(visibleTokenCount).indices), id: \.self) { index in
+                switch tokens[index] {
+                case let .word(word):
+                    Text(word)
+                        .font(.system(size: 13))
+                        .foregroundStyle(.primary)
+                case .citation:
+                    Link(destination: sources[0].destination) {
+                        HStack(spacing: 4) {
+                            ReferenceStreamingSourceIcon(source: sources[0], size: 12)
+                            Text(sources[0].domain)
+                                .font(.system(size: 10.5, design: .monospaced))
+                        }
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 3)
+                        .frame(height: 18)
+                        .background(theme.elevatedSurface, in: .rect(cornerRadius: 5))
+                        .overlay(RoundedRectangle(cornerRadius: 5).stroke(theme.border, lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
                 }
             }
-            .accessibilityLabel(buildStreamedText())
+            if !hasFinished {
+                Capsule().fill(Color.primary).frame(width: 2, height: 12)
+            }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(buildStreamedText())
     }
 
     private func buildStreamedText() -> String {
@@ -164,12 +179,6 @@ struct ReferenceStreamingDemo: View {
             }
         }
         .joined(separator: " ")
-    }
-
-    private var cursorOffset: CGFloat {
-        // The native text system owns exact glyph layout; a small caret at the end
-        // of the paragraph is intentionally preferable to faking a web text measure.
-        0
     }
 
     private func streamTokens() async {
@@ -242,5 +251,50 @@ private struct ReferenceStreamingIconButtonStyle: ButtonStyle {
         configuration.label
             .foregroundStyle(.tertiary)
             .background(configuration.isPressed ? theme.elevatedSurface : .clear, in: .rect(cornerRadius: 6))
+    }
+}
+
+private struct ReferenceInlineFlow: Layout {
+    let spacing: CGFloat
+    let lineSpacing: CGFloat
+
+    init(spacing: CGFloat, lineSpacing: CGFloat) {
+        self.spacing = spacing
+        self.lineSpacing = lineSpacing
+    }
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Void) -> CGSize {
+        let width = proposal.width ?? .greatestFiniteMagnitude
+        var lineWidth: CGFloat = 0
+        var lineHeight: CGFloat = 0
+        var height: CGFloat = 0
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            if lineWidth > 0 && lineWidth + spacing + size.width > width {
+                height += lineHeight + lineSpacing
+                lineWidth = 0
+                lineHeight = 0
+            }
+            lineWidth += (lineWidth == 0 ? 0 : spacing) + size.width
+            lineHeight = max(lineHeight, size.height)
+        }
+        return CGSize(width: proposal.width ?? lineWidth, height: height + lineHeight)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout Void) {
+        var cursor = CGPoint(x: bounds.minX, y: bounds.minY)
+        var lineHeight: CGFloat = 0
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            if cursor.x > bounds.minX && cursor.x + spacing + size.width > bounds.maxX {
+                cursor.x = bounds.minX
+                cursor.y += lineHeight + lineSpacing
+                lineHeight = 0
+            }
+            if cursor.x > bounds.minX { cursor.x += spacing }
+            subview.place(at: cursor, proposal: .unspecified)
+            cursor.x += size.width
+            lineHeight = max(lineHeight, size.height)
+        }
     }
 }

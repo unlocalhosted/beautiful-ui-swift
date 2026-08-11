@@ -204,19 +204,29 @@ private struct ReferenceTaskBadge: View {
                     .foregroundStyle(.primary)
                     .overlay(Circle().stroke(theme.border, lineWidth: 2))
             case .running:
-                ZStack {
-                    Circle().stroke(theme.border, lineWidth: 2)
-                    Circle()
-                        .trim(from: 0, to: 0.28)
-                        .stroke(Color.secondary, style: .init(lineWidth: 2, lineCap: .round))
-                        .rotationEffect(.degrees(-90))
-                    Text("2")
-                        .font(.system(size: 10.5, weight: .semibold))
-                }
-                .rotationEffect(.degrees(status == .running ? 360 : 0))
+                ReferenceTaskSpinner()
             }
         }
         .frame(width: 22, height: 22)
+    }
+}
+
+private struct ReferenceTaskSpinner: View {
+    @Environment(\.accessibilityReduceMotion) private var reducesMotion
+    @Environment(\.beautifulTheme) private var theme
+
+    var body: some View {
+        TimelineView(.animation(minimumInterval: reducesMotion ? 1 : 1 / 30)) { timeline in
+            let degrees = reducesMotion ? -90 : timeline.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 1.1) / 1.1 * 360 - 90
+            ZStack {
+                Circle().stroke(theme.border, lineWidth: 2)
+                Circle()
+                    .trim(from: 0, to: 0.28)
+                    .stroke(Color.secondary, style: .init(lineWidth: 2, lineCap: .round))
+                    .rotationEffect(.degrees(degrees))
+                Text("2").font(.system(size: 10.5, weight: .semibold))
+            }
+        }
     }
 }
 
