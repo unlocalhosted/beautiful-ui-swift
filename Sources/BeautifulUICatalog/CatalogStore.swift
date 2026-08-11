@@ -5,6 +5,8 @@ import SwiftUI
 @MainActor @Observable public final class CatalogStore {
     public var selectedSection: CatalogSection? = .loading
     public var loadingStyle: LoadingStyle = .grid
+    var thinkingVariant: ReferenceThinkingVariant = .steps
+    var taskVariant: ReferenceTaskVariant = .capsules
     public var chatTabs = CatalogFixtures.chatTabs
     public var selectedChatTabID: ChatTab.ID?
     public var chatDraft = ""

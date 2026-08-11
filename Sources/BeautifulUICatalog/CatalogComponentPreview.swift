@@ -18,48 +18,39 @@ struct CatalogComponentPreview: View {
                 CatalogLoadingDemo(style: $store.loadingStyle)
             }
         case .thinking:
-            CatalogDemoContainer(variants: ["Steps", "Reasoning", "Search", "Coding"]) {
-                ThinkingTraceView(steps: CatalogFixtures.thinkingSteps)
+            CatalogDemoContainer(
+                variants: ReferenceThinkingVariant.allCases.map(\.title),
+                selectedVariant: ReferenceThinkingVariant.allCases.firstIndex(of: store.thinkingVariant) ?? 0,
+                onSelectVariant: { store.thinkingVariant = ReferenceThinkingVariant.allCases[$0] }
+            ) {
+                ReferenceThinkingDemo(variant: store.thinkingVariant)
             }
         case .streaming:
-            CatalogDemoContainer(variants: ["Answer", "With sources", "With actions"]) {
-                StreamingResponseView(
-                    text: "Pistachio is your fastest-growing flavor. Sales are up 23% this month and margins remain stable.",
-                    sources: CatalogFixtures.sources,
-                    actions: [.init(title: "Save insight", symbolName: "bookmark"), .init(title: "Share", symbolName: "square.and.arrow.up")],
-                    followUps: ["Which flavors sell best in winter?", "Compare gelato and soft serve margins"],
-                    onAction: { action in store.showNotice("\(action.title) requested.") },
-                    onFollowUp: { followUp in store.showNotice("Follow-up ready: \(followUp)") }
-                )
+            CatalogDemoContainer {
+                ReferenceStreamingDemo()
             }
         case .approval:
-            CatalogDemoContainer(variants: ["Choices", "Custom", "Confirm"]) {
-                ApprovalCard(
-                    request: CatalogFixtures.approvalRequest,
-                    onSubmit: { _ in store.showNotice("Approval captured. Host app decides next action.") },
-                    onDismiss: { store.showNotice("Approval dismissed.") }
-                )
+            CatalogDemoContainer {
+                ReferenceApprovalDemo()
             }
         case .tools:
-            CatalogDemoContainer(variants: ["Collapsed", "Expanded", "Error"]) {
-                ToolCallGroup(calls: CatalogFixtures.toolCalls, initiallyExpanded: true)
+            CatalogDemoContainer {
+                ReferenceToolCallsDemo()
             }
         case .tasks:
-            CatalogDemoContainer(variants: ["Running", "Mixed", "Complete"]) {
-                AgentTaskList(tasks: CatalogFixtures.agentTasks)
+            CatalogDemoContainer(
+                variants: ReferenceTaskVariant.allCases.map(\.title),
+                selectedVariant: ReferenceTaskVariant.allCases.firstIndex(of: store.taskVariant) ?? 0,
+                onSelectVariant: { store.taskVariant = ReferenceTaskVariant.allCases[$0] }
+            ) {
+                ReferenceTasksDemo(variant: store.taskVariant)
             }
         case .chat:
-            CatalogDemoContainer(variants: ["Compact", "Threads", "Live"]) {
-                ChatPanel(
-                    tabs: store.chatTabs,
-                    messages: store.messages,
-                    selectedTabID: $store.selectedChatTabID,
-                    draft: $store.chatDraft,
-                    onSend: store.sendChat
-                )
+            CatalogDemoContainer {
+                ReferenceChatDemo()
             }
         case .prompt:
-            CatalogDemoContainer(variants: ["Default", "Attachments", "Voice"]) {
+            CatalogDemoContainer(variants: ["Rounded", "Pill"]) {
                 PromptBar(
                     draft: $store.promptDraft,
                     models: ["Vanilla 1", "Sprinkles 5"],
@@ -70,37 +61,29 @@ struct CatalogComponentPreview: View {
                 )
             }
         case .recommendation:
-            CatalogDemoContainer(variants: ["Suggestion", "Options", "Accepted"]) {
-                RecommendationCard(
-                    recommendation: CatalogFixtures.recommendation,
-                    onAccept: { store.showNotice("Recommendation accepted in local demo.") },
-                    onAlternatives: { store.showNotice("Alternatives requested.") }
-                )
+            CatalogDemoContainer {
+                ReferenceRecommendationDemo()
             }
         case .context:
-            CatalogDemoContainer(variants: ["Documents", "Web", "Mixed"]) {
-                VStack(spacing: BeautifulMetrics.regular) {
-                    ForEach(CatalogFixtures.chunks) { chunk in
-                        ContextChunkCard(chunk: chunk)
-                    }
-                }
+            CatalogDemoContainer {
+                ReferenceContextDemo()
             }
         case .changes:
-            CatalogDemoContainer(variants: ["Review", "Diff", "Applied"]) {
+            CatalogDemoContainer {
                 ChangeTable(title: "Proposed menu cleanup", columns: ["Flavor", "Category", "Supplier"], changes: CatalogFixtures.changes)
             }
         case .records:
-            CatalogDemoContainer(variants: ["Directory", "CRM", "Selected"]) {
+            CatalogDemoContainer {
                 RecordTable(records: CatalogFixtures.records) { record in
                     store.showNotice("Selected \(record.title)")
                 }
             }
         case .filters:
-            CatalogDemoContainer(variants: ["All", "Active", "Done"]) {
-                FilterableTaskTable(tasks: CatalogFixtures.filterTasks, selectedState: $store.selectedTaskState)
+            CatalogDemoContainer {
+                ReferenceFilterDemo()
             }
         case .workspace:
-            CatalogDemoContainer(variants: ["Workspace", "Project", "Inbox"]) {
+            CatalogDemoContainer {
                 WorkspaceSidebar(
                     workspaceName: "Creamery Ops",
                     workspaceDetail: "Production workspace",
@@ -110,29 +93,25 @@ struct CatalogComponentPreview: View {
                 .frame(minHeight: 370)
             }
         case .search:
-            CatalogDemoContainer(variants: ["Commands", "Search", "Empty"]) {
-                CommandSearch(query: $store.searchQuery, suggestions: CatalogFixtures.searchSuggestions) { suggestion in
-                    store.showNotice("Selected command: \(suggestion)")
-                }
+            CatalogDemoContainer {
+                ReferenceSearchDemo()
             }
         case .insights:
-            CatalogDemoContainer(variants: ["Trends", "Forecast", "Details"]) {
+            CatalogDemoContainer {
                 InsightCard(insights: CatalogFixtures.insights, selectedInsightID: $store.selectedInsightID) { insight in
                     store.showNotice("Follow-up on \(insight.headline)")
                 }
             }
         case .code:
-            CatalogDemoContainer(variants: ["Swift", "Diff", "Terminal"]) {
-                CodeBlock(snippet: CatalogFixtures.snippet) {
-                    store.showNotice("Copy requested. Host app owns clipboard policy.")
-                }
+            CatalogDemoContainer {
+                ReferenceCodeDemo()
             }
         case .fineTune:
-            CatalogDemoContainer(variants: ["Layout", "Appearance", "Data"]) {
+            CatalogDemoContainer {
                 FineTuneCard(title: "Flavor card", values: $store.fineTuneValues)
             }
         case .selection:
-            CatalogDemoContainer(variants: ["Edit", "Improve", "Review"]) {
+            CatalogDemoContainer {
                 SelectionActions(
                     selectedText: "Pistachio holds the top slot all weekend. Churn it first thing Saturday so the batch can firm before the afternoon rush.",
                     instruction: $store.editInstruction,

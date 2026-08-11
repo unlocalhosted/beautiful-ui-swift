@@ -17,8 +17,7 @@ public struct LoadingStateView: View {
     public var body: some View {
         HStack(spacing: BeautifulMetrics.compact) {
             LoadingIndicator(style: style, reduceMotion: reduceMotion)
-            Text(label)
-                .font(.system(size: 13, weight: .medium))
+            BeautifulShimmerText(label)
             Text(startedAt, style: .timer)
                 .font(.system(size: 12, design: .monospaced))
                 .foregroundStyle(.secondary)

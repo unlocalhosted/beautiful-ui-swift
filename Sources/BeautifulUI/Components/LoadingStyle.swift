@@ -5,5 +5,11 @@ public enum LoadingStyle: String, CaseIterable, Sendable {
     case dots
     case orbit
 
-    public var title: String { rawValue.capitalized }
+    public var title: String {
+        switch self {
+        case .grid: "Drive"
+        case .dots: "Dots"
+        case .orbit: "Orbit"
+        }
+    }
 }
