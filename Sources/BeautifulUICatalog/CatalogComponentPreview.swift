@@ -50,15 +50,12 @@ struct CatalogComponentPreview: View {
                 ReferenceChatDemo()
             }
         case .prompt:
-            CatalogDemoContainer(variants: ["Rounded", "Pill"]) {
-                PromptBar(
-                    draft: $store.promptDraft,
-                    models: ["Vanilla 1", "Sprinkles 5"],
-                    selectedModel: $store.selectedModel,
-                    onAddAttachments: { store.showNotice("Attachment picker belongs to host app.") },
-                    onDictate: { store.showNotice("Dictation permission belongs to host app.") },
-                    onSend: store.sendPrompt
-                )
+            CatalogDemoContainer(
+                variants: ReferencePromptVariant.allCases.map(\.title),
+                selectedVariant: ReferencePromptVariant.allCases.firstIndex(of: store.promptVariant) ?? 0,
+                onSelectVariant: { store.promptVariant = ReferencePromptVariant.allCases[$0] }
+            ) {
+                ReferencePromptDemo(variant: store.promptVariant)
             }
         case .recommendation:
             CatalogDemoContainer {
@@ -70,13 +67,11 @@ struct CatalogComponentPreview: View {
             }
         case .changes:
             CatalogDemoContainer {
-                ChangeTable(title: "Proposed menu cleanup", columns: ["Flavor", "Category", "Supplier"], changes: CatalogFixtures.changes)
+                ReferenceChangesDemo()
             }
         case .records:
             CatalogDemoContainer {
-                RecordTable(records: CatalogFixtures.records) { record in
-                    store.showNotice("Selected \(record.title)")
-                }
+                ReferenceRecordsDemo()
             }
         case .filters:
             CatalogDemoContainer {
@@ -108,16 +103,11 @@ struct CatalogComponentPreview: View {
             }
         case .fineTune:
             CatalogDemoContainer {
-                FineTuneCard(title: "Flavor card", values: $store.fineTuneValues)
+                ReferenceFineTuneDemo()
             }
         case .selection:
             CatalogDemoContainer {
-                SelectionActions(
-                    selectedText: "Pistachio holds the top slot all weekend. Churn it first thing Saturday so the batch can firm before the afternoon rush.",
-                    instruction: $store.editInstruction,
-                    onAction: { action in store.showNotice("\(action.title) selected.") },
-                    onSend: { store.showNotice("Edit instruction sent to host route.") }
-                )
+                ReferenceSelectionDemo()
             }
         }
     }

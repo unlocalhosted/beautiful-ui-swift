@@ -7,6 +7,7 @@ import SwiftUI
     public var loadingStyle: LoadingStyle = .grid
     var thinkingVariant: ReferenceThinkingVariant = .steps
     var taskVariant: ReferenceTaskVariant = .capsules
+    var promptVariant: ReferencePromptVariant = .rounded
     public var chatTabs = CatalogFixtures.chatTabs
     public var selectedChatTabID: ChatTab.ID?
     public var chatDraft = ""
