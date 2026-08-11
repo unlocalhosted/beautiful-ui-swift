@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here.
 
-## Unreleased
+## 0.1.0 — 2026-08-11
 
 - Native iOS and macOS SwiftUI component library and visual catalogue.
 - Reference dark and light palettes, responsive document shell, compact controls, and interaction variants.

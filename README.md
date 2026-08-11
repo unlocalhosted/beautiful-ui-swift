@@ -19,10 +19,10 @@ Add BeautifulUI as a Swift Package dependency in Xcode, then import it:
 import BeautifulUI
 ```
 
-Until the first tagged release, add the repository by branch or revision. After release, use a semantic-version rule in Xcode or `Package.swift`.
+Use the first stable tag in `Package.swift`:
 
 ```swift
-.package(url: "https://github.com/vijayksingh/beautiful-ui-swift.git", branch: "main")
+.package(url: "https://github.com/vijayksingh/beautiful-ui-swift.git", from: "0.1.0")
 ```
 
 ## Start
