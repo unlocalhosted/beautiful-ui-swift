@@ -5,7 +5,11 @@ import SwiftUI
 struct BeautifulUIiOSDemoApp: App {
     var body: some Scene {
         WindowGroup {
-            BeautifulUICatalog()
+            if ProcessInfo.processInfo.arguments.contains("--video-demo") {
+                BeautifulUIVideoReel()
+            } else {
+                BeautifulUICatalog()
+            }
         }
     }
 }

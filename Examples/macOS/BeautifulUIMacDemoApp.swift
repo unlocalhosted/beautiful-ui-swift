@@ -5,7 +5,11 @@ import SwiftUI
 struct BeautifulUIMacDemoApp: App {
     var body: some Scene {
         WindowGroup("BeautifulUI") {
-            BeautifulUICatalog()
+            if ProcessInfo.processInfo.arguments.contains("--video-demo") {
+                BeautifulUIVideoReel()
+            } else {
+                BeautifulUICatalog()
+            }
         }
         .defaultSize(width: 1_260, height: 860)
     }
