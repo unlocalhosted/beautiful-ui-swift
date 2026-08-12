@@ -79,7 +79,11 @@ The native iPhone reel shows all 19 primitives in sequence, including their live
 
 Run either demo app with `--video-demo` to render the same full-screen reel locally. On iOS, `--video-section loading` renders a single named primitive for clip capture.
 
-[Browse every per-primitive demo clip](DEMO.md)
+GitHub does not permit an inline MP4 player in repository Markdown. The live gallery uses compact animated previews that autoplay on GitHub; each preview opens its full-quality MP4 release.
+
+<a href="DEMO.md"><img src="Media/Previews/03-Streaming-Text.gif" width="240" alt="Streaming Text primitive playing in the native iPhone demo" /></a>
+
+[Watch all 19 primitives playing on GitHub](DEMO.md)
 
 ## Development
 
