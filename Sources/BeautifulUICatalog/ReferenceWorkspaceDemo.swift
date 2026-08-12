@@ -8,7 +8,7 @@ struct ReferenceWorkspaceDemo: View {
     @State private var taskCount = 4
     @State private var query = ""
 
-    private let items = [
+    private static let items = [
         ReferenceWorkspaceItem(key: "activity", title: "Home", section: "Workspace", icon: "waveform.path.ecg"),
         ReferenceWorkspaceItem(key: "tasks", title: "Agent tasks", section: "Workspace", icon: "checklist", hasCount: true),
         ReferenceWorkspaceItem(key: "dashboard", title: "Inbox", section: "Workspace", icon: "square.grid.2x2"),
@@ -17,7 +17,7 @@ struct ReferenceWorkspaceDemo: View {
     ]
 
     private var filteredItems: [ReferenceWorkspaceItem] {
-        query.isEmpty ? items : items.filter { $0.title.localizedCaseInsensitiveContains(query) }
+        query.isEmpty ? Self.items : Self.items.filter { $0.title.localizedStandardContains(query) }
     }
 
     var body: some View {

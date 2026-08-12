@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct FlowLayoutRow {
+struct ReferenceInlineFlowLine {
     var indices: [Int]
     var sizes: [CGSize]
     var width: CGFloat

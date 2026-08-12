@@ -19,7 +19,7 @@ public struct RecordTable: View {
                     .frame(maxWidth: .infinity)
                     .padding(BeautifulMetrics.section)
             } else {
-                VStack(spacing: BeautifulMetrics.micro) {
+                LazyVStack(spacing: BeautifulMetrics.micro) {
                     ForEach(records) { record in
                         Button(action: { onSelect(record) }) {
                             RecordTableRow(record: record)

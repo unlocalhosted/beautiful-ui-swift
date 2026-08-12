@@ -6,7 +6,7 @@ struct ReferenceSearchDemo: View {
     @Environment(\.beautifulTheme) private var theme
     @State private var query = ""
 
-    private let commands = [
+    private static let commands = [
         "Forecast summer demand",
         "Find waffle cone suppliers",
         "Compare seasonal flavors",
@@ -17,7 +17,7 @@ struct ReferenceSearchDemo: View {
     ]
 
     private var matches: [String] {
-        query.isEmpty ? Array(commands.prefix(5)) : commands.filter { $0.localizedCaseInsensitiveContains(query) }
+        query.isEmpty ? Array(Self.commands.prefix(5)) : Self.commands.filter { $0.localizedStandardContains(query) }
     }
 
     private var showsEmptyState: Bool {

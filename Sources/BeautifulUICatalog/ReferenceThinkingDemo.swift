@@ -14,7 +14,7 @@ struct ReferenceThinkingDemo: View {
     @State private var expandedOverride: Bool?
     @State private var selectedCodingRow: String?
 
-    private let phaseDelays = [800, 600, 1_800, 2_600, 1_600]
+    private static let phaseDelays = [800, 600, 1_800, 2_600, 1_600]
 
     private var content: ReferenceThinkingContent {
         ReferenceThinkingContent.forVariant(variant)
@@ -209,9 +209,9 @@ struct ReferenceThinkingDemo: View {
         }
         guard !reducesMotion else { return }
 
-        for index in phaseDelays.indices.dropLast() {
+        for index in Self.phaseDelays.indices.dropLast() {
             do {
-                try await Task.sleep(for: .milliseconds(phaseDelays[index]))
+                try await Task.sleep(for: .milliseconds(Self.phaseDelays[index]))
             } catch {
                 return
             }
@@ -245,41 +245,49 @@ private struct ReferenceThinkingContent {
     static func forVariant(_ variant: ReferenceThinkingVariant) -> Self {
         switch variant {
         case .steps:
-            .init(active: "Thinking", done: "Thought for 4 seconds", query: nil, rows: [
+            steps
+        case .reasoning:
+            reasoning
+        case .search:
+            search
+        case .coding:
+            coding
+        }
+    }
+
+    private static let steps = Self(active: "Thinking", done: "Thought for 4 seconds", query: nil, rows: [
                 .init(primary: "Reading flavor briefs"),
                 .init(primary: "Scanning supplier lists"),
                 .init(primary: "Comparing tasting notes", secondary: "6 flavors"),
                 .init(primary: "Writing the scoop report")
             ])
-        case .reasoning:
-            .init(active: "Thinking", done: "Thought for 4 seconds", query: nil, rows: [
+
+    private static let reasoning = Self(active: "Thinking", done: "Thought for 4 seconds", query: nil, rows: [
                 .init(primary: "Summer demand spikes for stone-fruit flavors — peach and apricot lead."),
                 .init(primary: "I should check cone inventory before promoting a waffle-bowl special.")
             ])
-        case .search:
-            .init(active: "Searching the web", done: "Searched the web", query: "best waffle cone supplier", rows: [
+
+    private static let search = Self(active: "Searching the web", done: "Searched the web", query: "best waffle cone supplier", rows: [
                 .init(primary: "Joy Cone", secondary: "joycone.com", destination: URL(string: "https://joycone.com/fs_products/waffle-cones/")!),
                 .init(primary: "WebstaurantStore", secondary: "webstaurantstore.com", destination: URL(string: "https://www.webstaurantstore.com/ice-cream-shop-supplies.html")!),
                 .init(primary: "The Konery", secondary: "thekonery.com", destination: URL(string: "https://www.thekonery.com/")!)
             ])
-        case .coding:
-            .init(active: "Running tools", done: "Ran 3 tools", query: nil, rows: [
+
+    private static let coding = Self(active: "Running tools", done: "Ran 3 tools", query: nil, rows: [
                 .init(primary: "Read", secondary: "flavors.ts", isMonospaced: true),
                 .init(primary: "Edit", secondary: "ChurnSchedule.tsx", isMonospaced: true, additions: 74, deletions: 41),
                 .init(primary: "Run", secondary: "npm run freeze", isMonospaced: true)
             ])
-        }
-    }
 }
 
 private struct ReferenceThinkingRow: Identifiable {
-    let id = UUID()
     let primary: String
     var secondary: String?
     var destination: URL?
     var isMonospaced = false
     var additions: Int?
     var deletions: Int?
+    var id: String { primary }
 }
 
 private struct ReferenceThinkingSparkle: Shape {

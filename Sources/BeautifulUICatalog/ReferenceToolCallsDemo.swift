@@ -9,7 +9,7 @@ struct ReferenceToolCallsDemo: View {
     @State private var isExpanded = true
     @State private var expandedCalls: Set<String> = []
 
-    private let calls: [ReferenceToolCall] = [
+    private static let calls: [ReferenceToolCall] = [
         .init(icon: "sparkles", label: "Thinking", chip: "Planning the churn schedule…", details: [
             .init(text: "Weekend demand carries pistachio, so it churns first."),
             .init(text: "Batch capacity leaves two evening freezer windows.")
@@ -49,12 +49,12 @@ struct ReferenceToolCallsDemo: View {
 
             if isExpanded {
                 VStack(alignment: .leading, spacing: 4) {
-                    ForEach(Array(calls.prefix(visibleCallCount))) { call in
+                    ForEach(Array(Self.calls.prefix(visibleCallCount))) { call in
                         toolCall(call)
                             .transition(.asymmetric(insertion: .opacity.combined(with: .offset(y: 6)), removal: .opacity))
                     }
 
-                    if visibleCallCount >= calls.count + 1 {
+                    if visibleCallCount >= Self.calls.count + 1 {
                         HStack(spacing: 6) {
                             ForEach(Self.changedFiles) { file in
                                 HStack(spacing: 6) {
@@ -160,12 +160,12 @@ struct ReferenceToolCallsDemo: View {
 
     private func stageCalls() async {
         await MainActor.run {
-            visibleCallCount = reducesMotion ? calls.count + 1 : 0
+                    visibleCallCount = reducesMotion ? Self.calls.count + 1 : 0
             isExpanded = true
             expandedCalls = []
         }
         guard !reducesMotion else { return }
-        while !Task.isCancelled, visibleCallCount < calls.count + 1 {
+        while !Task.isCancelled, visibleCallCount < Self.calls.count + 1 {
             do { try await Task.sleep(for: .milliseconds(700)) }
             catch { return }
             await MainActor.run {
@@ -184,27 +184,27 @@ struct ReferenceToolCallsDemo: View {
 }
 
 private struct ReferenceToolCall: Identifiable {
-    let id = UUID()
     let icon: String
     let label: String
     let chip: String
     var isMonospaced = false
     var detailsAreMonospaced = false
     let details: [ReferenceToolDetail]
+    var id: String { label }
 }
 
 private struct ReferenceToolDetail: Identifiable {
     enum Tone { case neutral, addition }
-    let id = UUID()
     let text: String
     var tone: Tone = .neutral
+    var id: String { text }
 }
 
 private struct ReferenceToolFile: Identifiable {
-    let id = UUID()
     let name: String
     let additions: Int
     let deletions: Int
+    var id: String { name }
 }
 
 private struct ReferenceToolRowButtonStyle: ButtonStyle {

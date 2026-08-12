@@ -8,4 +8,10 @@ public enum TaskFilter {
         guard let state else { return tasks }
         return tasks.filter { $0.state == state }
     }
+
+    public static func counts(from tasks: [FilterTask]) -> [FilterTask.State: Int] {
+        tasks.reduce(into: [:]) { counts, task in
+            counts[task.state, default: 0] += 1
+        }
+    }
 }

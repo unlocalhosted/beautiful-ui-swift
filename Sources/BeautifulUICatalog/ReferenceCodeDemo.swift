@@ -8,7 +8,7 @@ struct ReferenceCodeDemo: View {
     @State private var visibleLines = 0
     @State private var didCopy = false
 
-    private let lines: [[ReferenceCodeToken]] = [
+    private static let lines: [[ReferenceCodeToken]] = [
         [.init("export async function ", .keyword), .init("churnBatch", .function), .init("() {", .dim)],
         [.init("  const ", .keyword), .init("flavor = ", .default), .init("await ", .keyword), .init("getFlavor", .function), .init("(", .dim), .init("\"pistachio\"", .string), .init(");", .dim)],
         [.init("  const ", .keyword), .init("base = ", .default), .init("await ", .keyword), .init("dairy.", .default), .init("fetch", .function), .init("({ flavor });", .dim)],
@@ -17,7 +17,7 @@ struct ReferenceCodeDemo: View {
         [.init("}", .dim)]
     ]
 
-    private var hasFinished: Bool { visibleLines >= lines.count }
+    private var hasFinished: Bool { visibleLines >= Self.lines.count }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -55,7 +55,7 @@ struct ReferenceCodeDemo: View {
             .overlay(alignment: .bottom) { Rectangle().fill(theme.border).frame(height: 1) }
 
             VStack(alignment: .leading, spacing: 0) {
-                ForEach(Array(lines.prefix(visibleLines).enumerated()), id: \.offset) { lineIndex, line in
+                ForEach(Array(Self.lines.prefix(visibleLines).enumerated()), id: \.offset) { lineIndex, line in
                     HStack(alignment: .firstTextBaseline, spacing: 0) {
                         Text("\(lineIndex + 1)")
                             .font(.system(size: 10.5, design: .monospaced))
@@ -93,7 +93,7 @@ struct ReferenceCodeDemo: View {
     }
 
     private func typeCode() async {
-        await MainActor.run { visibleLines = reducesMotion ? lines.count : 0 }
+        await MainActor.run { visibleLines = reducesMotion ? Self.lines.count : 0 }
         guard !reducesMotion else { return }
         while !Task.isCancelled {
             let delay = visibleLines == 0 ? 400 : hasFinished ? 3_200 : 240
@@ -110,9 +110,9 @@ struct ReferenceCodeDemo: View {
 
 private struct ReferenceCodeToken: Identifiable {
     enum Kind { case keyword, function, string, dim, `default` }
-    let id = UUID()
     let text: String
     let kind: Kind
+    var id: String { text }
     init(_ text: String, _ kind: Kind) { self.text = text; self.kind = kind }
     func color(theme: BeautifulTheme) -> Color {
         switch kind {

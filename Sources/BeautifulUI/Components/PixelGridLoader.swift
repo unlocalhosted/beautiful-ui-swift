@@ -14,17 +14,20 @@ struct PixelGridLoader: View {
     var body: some View {
         TimelineView(.animation(minimumInterval: reducesMotion ? 1 : 1 / 30)) { timeline in
             let elapsed = timeline.date.timeIntervalSinceReferenceDate
-            LazyVGrid(
-                columns: Array(repeating: GridItem(.fixed(4), spacing: 1.5), count: 3),
-                spacing: 1.5
-            ) {
-                ForEach(0..<9, id: \.self) { index in
-                    RoundedRectangle(cornerRadius: style == .dots ? 2 : 1)
-                        .fill(.primary)
-                        .frame(width: 4, height: 4)
-                        .opacity(pixelOpacity(at: index, elapsed: elapsed))
+            Canvas(opaque: false, colorMode: .nonLinear, rendersAsynchronously: true) { context, _ in
+                for index in 0 ..< 9 {
+                    let row = index / 3
+                    let column = index % 3
+                    let origin = CGPoint(x: Double(column) * 5.5, y: Double(row) * 5.5)
+                    let pixel = Path(
+                        roundedRect: .init(origin: origin, size: .init(width: 4, height: 4)),
+                        cornerRadius: style == .dots ? 2 : 1
+                    )
+                    context.opacity = pixelOpacity(at: index, elapsed: elapsed)
+                    context.fill(pixel, with: .color(.primary))
                 }
             }
+            .frame(width: 15, height: 15)
         }
         .frame(width: 15, height: 15)
         .accessibilityHidden(true)

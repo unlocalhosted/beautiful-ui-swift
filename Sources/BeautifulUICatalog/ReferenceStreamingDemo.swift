@@ -8,7 +8,7 @@ struct ReferenceStreamingDemo: View {
     @State private var visibleTokenCount = 0
     @State private var showsSources = false
 
-    private let tokens: [ReferenceStreamingToken] =
+    private static let tokens: [ReferenceStreamingToken] =
         "Pistachio is your fastest-growing flavor — sales are up 23% this month and margins beat vanilla by 8 points."
             .split(separator: " ")
             .map { .word(String($0)) }
@@ -17,14 +17,14 @@ struct ReferenceStreamingDemo: View {
             .split(separator: " ")
             .map { .word(String($0)) }
 
-    private let sources: [ReferenceStreamingSource] = [
+    private static let sources: [ReferenceStreamingSource] = [
         .init(name: "Scoop Data", domain: "scoopdata.io", destination: URL(string: "https://scoopdata.io/")!, tint: Color(red: 0.12, green: 0.48, blue: 0.37), symbol: "icecream"),
         .init(name: "Trends Index", domain: "trends.google.com", destination: URL(string: "https://trends.google.com/trends/")!, tint: Color(red: 0.18, green: 0.44, blue: 0.93), symbol: "chart.line.uptrend.xyaxis"),
         .init(name: "Market Basket", domain: "marketbasket.io", destination: URL(string: "https://marketbasket.io/")!, tint: Color(red: 0.90, green: 0.43, blue: 0.14), symbol: "chart.bar")
     ]
 
     private var hasFinished: Bool {
-        visibleTokenCount >= tokens.count
+        visibleTokenCount >= Self.tokens.count
     }
 
     var body: some View {
@@ -47,7 +47,7 @@ struct ReferenceStreamingDemo: View {
                 } label: {
                     HStack(spacing: 6) {
                         HStack(spacing: -4) {
-                            ForEach(sources) { source in
+                            ForEach(Self.sources) { source in
                                 ReferenceStreamingSourceIcon(source: source, size: 14)
                                     .overlay(Circle().stroke(theme.canvas, lineWidth: 1.5))
                             }
@@ -69,7 +69,7 @@ struct ReferenceStreamingDemo: View {
 
             if hasFinished && showsSources {
                 VStack(spacing: 0) {
-                    ForEach(sources) { source in
+                    ForEach(Self.sources) { source in
                         Link(destination: source.destination) {
                             HStack(spacing: 8) {
                                 ReferenceStreamingSourceIcon(source: source, size: 16)
@@ -141,17 +141,17 @@ struct ReferenceStreamingDemo: View {
 
     private var streamedText: some View {
         ReferenceInlineFlow(spacing: 4, lineSpacing: 3) {
-            ForEach(Array(tokens.prefix(visibleTokenCount).indices), id: \.self) { index in
-                switch tokens[index] {
+            ForEach(Array(Self.tokens.prefix(visibleTokenCount).indices), id: \.self) { index in
+                switch Self.tokens[index] {
                 case let .word(word):
                     Text(word)
                         .font(.system(size: 13))
                         .foregroundStyle(.primary)
                 case .citation:
-                    Link(destination: sources[0].destination) {
+                    Link(destination: Self.sources[0].destination) {
                         HStack(spacing: 4) {
-                            ReferenceStreamingSourceIcon(source: sources[0], size: 12)
-                            Text(sources[0].domain)
+                            ReferenceStreamingSourceIcon(source: Self.sources[0], size: 12)
+                            Text(Self.sources[0].domain)
                                 .font(.system(size: 10.5, design: .monospaced))
                         }
                         .foregroundStyle(.secondary)
@@ -172,7 +172,7 @@ struct ReferenceStreamingDemo: View {
     }
 
     private func buildStreamedText() -> String {
-        tokens.prefix(visibleTokenCount).map { token in
+        Self.tokens.prefix(visibleTokenCount).map { token in
             switch token {
             case let .word(value): value
             case .citation: "[scoopdata.io]"
@@ -183,7 +183,7 @@ struct ReferenceStreamingDemo: View {
 
     private func streamTokens() async {
         await MainActor.run {
-            visibleTokenCount = reducesMotion ? tokens.count : 0
+            visibleTokenCount = reducesMotion ? Self.tokens.count : 0
             showsSources = false
         }
         guard !reducesMotion else { return }
@@ -220,12 +220,12 @@ private enum ReferenceStreamingToken {
 }
 
 private struct ReferenceStreamingSource: Identifiable {
-    let id = UUID()
     let name: String
     let domain: String
     let destination: URL
     let tint: Color
     let symbol: String
+    var id: String { domain }
 }
 
 private struct ReferenceStreamingSourceIcon: View {
@@ -263,38 +263,61 @@ private struct ReferenceInlineFlow: Layout {
         self.lineSpacing = lineSpacing
     }
 
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Void) -> CGSize {
-        let width = proposal.width ?? .greatestFiniteMagnitude
-        var lineWidth: CGFloat = 0
-        var lineHeight: CGFloat = 0
-        var height: CGFloat = 0
-        for subview in subviews {
-            let size = subview.sizeThatFits(.unspecified)
-            if lineWidth > 0 && lineWidth + spacing + size.width > width {
-                height += lineHeight + lineSpacing
-                lineWidth = 0
-                lineHeight = 0
-            }
-            lineWidth += (lineWidth == 0 ? 0 : spacing) + size.width
-            lineHeight = max(lineHeight, size.height)
-        }
-        return CGSize(width: proposal.width ?? lineWidth, height: height + lineHeight)
+    func makeCache(subviews: Subviews) -> ReferenceInlineFlowCache {
+        ReferenceInlineFlowCache(subviewSizes: subviews.map { $0.sizeThatFits(.unspecified) })
     }
 
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout Void) {
-        var cursor = CGPoint(x: bounds.minX, y: bounds.minY)
-        var lineHeight: CGFloat = 0
-        for subview in subviews {
-            let size = subview.sizeThatFits(.unspecified)
-            if cursor.x > bounds.minX && cursor.x + spacing + size.width > bounds.maxX {
-                cursor.x = bounds.minX
-                cursor.y += lineHeight + lineSpacing
-                lineHeight = 0
+    func updateCache(_ cache: inout ReferenceInlineFlowCache, subviews: Subviews) {
+        cache = makeCache(subviews: subviews)
+    }
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ReferenceInlineFlowCache) -> CGSize {
+        let lines = lines(for: proposal.width, cache: &cache)
+        let width = proposal.width ?? lines.map(\.width).max() ?? 0
+        let height = lines.reduce(CGFloat.zero) { $0 + $1.height }
+            + CGFloat(max(lines.count - 1, 0)) * lineSpacing
+        return CGSize(width: width, height: height)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ReferenceInlineFlowCache) {
+        let lines = lines(for: bounds.width, cache: &cache)
+        var origin = bounds.origin
+        for line in lines {
+            origin.x = bounds.minX
+            for (index, size) in zip(line.indices, line.sizes) {
+                subviews[index].place(at: origin, proposal: ProposedViewSize(size))
+                origin.x += size.width + spacing
             }
-            if cursor.x > bounds.minX { cursor.x += spacing }
-            subview.place(at: cursor, proposal: .unspecified)
-            cursor.x += size.width
-            lineHeight = max(lineHeight, size.height)
+            origin.y += line.height + lineSpacing
         }
+    }
+
+    private func lines(for proposedWidth: CGFloat?, cache: inout ReferenceInlineFlowCache) -> [ReferenceInlineFlowLine] {
+        if cache.hasResolvedLines, cache.proposedWidth == proposedWidth {
+            return cache.lines
+        }
+
+        let maxWidth = proposedWidth ?? .greatestFiniteMagnitude
+        var lines: [ReferenceInlineFlowLine] = []
+        var current = ReferenceInlineFlowLine(indices: [], sizes: [], width: 0, height: 0)
+        for (index, size) in cache.subviewSizes.enumerated() {
+            let nextWidth = current.indices.isEmpty ? size.width : current.width + spacing + size.width
+            if nextWidth > maxWidth, !current.indices.isEmpty {
+                lines.append(current)
+                current = ReferenceInlineFlowLine(indices: [index], sizes: [size], width: size.width, height: size.height)
+            } else {
+                current.indices.append(index)
+                current.sizes.append(size)
+                current.width = nextWidth
+                current.height = max(current.height, size.height)
+            }
+        }
+        if !current.indices.isEmpty {
+            lines.append(current)
+        }
+        cache.proposedWidth = proposedWidth
+        cache.lines = lines
+        cache.hasResolvedLines = true
+        return lines
     }
 }

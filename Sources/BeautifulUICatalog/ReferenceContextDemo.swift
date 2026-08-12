@@ -7,7 +7,7 @@ struct ReferenceContextDemo: View {
     @Environment(\.beautifulTheme) private var theme
     @State private var showsSourceChips = false
 
-    private let chunks = [
+    private static let chunks = [
         ReferenceContextChunk(
             title: "Vendor onboarding rule",
             characters: "290 characters",
@@ -40,7 +40,7 @@ struct ReferenceContextDemo: View {
             }
             .padding(.horizontal, 2)
 
-            ForEach(Array(chunks.enumerated()), id: \.element.id) { index, chunk in
+            ForEach(Array(Self.chunks.enumerated()), id: \.element.id) { index, chunk in
                 VStack(alignment: .leading, spacing: 0) {
                     HStack(spacing: 6) {
                         Image(systemName: "text.alignleft")
@@ -104,11 +104,11 @@ struct ReferenceContextDemo: View {
 }
 
 private struct ReferenceContextChunk: Identifiable {
-    let id = UUID()
     let title: String
     let characters: String
     let body: String
     let source: String
     let badge: String
     let tint: Color
+    var id: String { source }
 }

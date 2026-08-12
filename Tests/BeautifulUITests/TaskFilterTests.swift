@@ -18,4 +18,17 @@ struct TaskFilterTests {
 
         #expect(TaskFilter.tasks(matching: .todo, from: [todo, done]) == [todo])
     }
+
+    @Test func countsEveryTaskStateInOnePass() {
+        let tasks = [
+            FilterTask(title: "Todo", date: .now, advisor: "One", state: .todo),
+            FilterTask(title: "Active", date: .now, advisor: "Two", state: .inProgress),
+            FilterTask(title: "Done", date: .now, advisor: "Three", state: .completed)
+        ]
+        let counts = TaskFilter.counts(from: tasks)
+
+        #expect(counts[FilterTask.State.todo] == 1)
+        #expect(counts[FilterTask.State.inProgress] == 1)
+        #expect(counts[FilterTask.State.completed] == 1)
+    }
 }

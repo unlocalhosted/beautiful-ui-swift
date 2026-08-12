@@ -13,7 +13,7 @@ struct ReferenceFilterDemo: View {
     @Environment(\.beautifulTheme) private var theme
     @State private var filter: Filter = .all
 
-    private let tasks = [
+    private static let tasks = [
         ReferenceFilterTask("Restock mango sorbet", "Dec 03", .todo, "Mango Moon Gelato"),
         ReferenceFilterTask("Churn black sesame", "Sep 22", .progress, "Kumo Creamery"),
         ReferenceFilterTask("Print summer menu", "Jan 02", .todo, "Coral Coast Sorbet"),
@@ -64,7 +64,7 @@ struct ReferenceFilterDemo: View {
                 .frame(height: 36)
                 .overlay(alignment: .bottom) { Rectangle().fill(theme.border).frame(height: 1) }
 
-                ForEach(tasks.filter { filter == .all || $0.status == filter }) { task in
+                ForEach(Self.tasks.filter { filter == .all || $0.status == filter }) { task in
                     HStack(spacing: 0) {
                         Text(task.name).font(.system(size: 12, weight: .medium)).lineLimit(1).frame(maxWidth: .infinity, alignment: .leading)
                         Text(task.date).font(.system(size: 12)).foregroundStyle(.secondary).monospacedDigit().frame(maxWidth: .infinity, alignment: .leading)
@@ -100,11 +100,11 @@ struct ReferenceFilterDemo: View {
 }
 
 private struct ReferenceFilterTask: Identifiable {
-    let id = UUID()
     let name: String
     let date: String
     let status: ReferenceFilterDemo.Filter
     let owner: String
+    var id: String { name }
     init(_ name: String, _ date: String, _ status: ReferenceFilterDemo.Filter, _ owner: String) {
         self.name = name; self.date = date; self.status = status; self.owner = owner
     }

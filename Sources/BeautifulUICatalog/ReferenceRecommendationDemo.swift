@@ -8,7 +8,7 @@ struct ReferenceRecommendationDemo: View {
     @State private var showsAlternatives = false
     @State private var isAccepted = false
 
-    private let options = [
+    private static let options = [
         ReferenceRecommendationOption(
             short: "Reorder from cone_king · 7-day lead",
             pieces: [.plain("Reorder waffle cones from"), .token("cone_king", tint: .blue), .plain("with lead time"), .token("7_days", tint: .blue)],
@@ -26,7 +26,7 @@ struct ReferenceRecommendationDemo: View {
         )
     ]
 
-    private var option: ReferenceRecommendationOption { options[selectedOption] }
+    private var option: ReferenceRecommendationOption { Self.options[selectedOption] }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -49,7 +49,7 @@ struct ReferenceRecommendationDemo: View {
                         .padding(.horizontal, 6)
                         .padding(.bottom, 4)
 
-                    ForEach(Array(options.enumerated()).filter { $0.offset != selectedOption }, id: \.element.id) { index, alternative in
+                    ForEach(Array(Self.options.enumerated()).filter { $0.offset != selectedOption }, id: \.element.id) { index, alternative in
                         Button {
                             selectedOption = index
                             showsAlternatives = false
@@ -141,13 +141,13 @@ struct ReferenceRecommendationDemo: View {
 }
 
 private struct ReferenceRecommendationOption: Identifiable {
-    let id = UUID()
     let short: String
     let pieces: [ReferenceRecommendationPiece]
     let signal: Int
     let tint: Color
     let label: String
     let cta: String
+    var id: String { short }
 }
 
 private enum ReferenceRecommendationPiece {

@@ -7,7 +7,7 @@ struct ReferenceChangesDemo: View {
     @Environment(\.beautifulTheme) private var theme
     @State private var stage = 0
 
-    private let rows = [
+    private static let rows = [
         ReferenceChangeRow(name: "Rocky Road", category: "Classic", supplier: "aurora-scoops", isRemoved: true),
         ReferenceChangeRow(name: "Bubblegum", category: "Retro", supplier: "kumo-creamery", isRemoved: true),
         ReferenceChangeRow(name: "Mint Chip", category: "Classic", supplier: "maple-orbit", isRemoved: false)
@@ -31,7 +31,7 @@ struct ReferenceChangesDemo: View {
             .frame(height: 32)
             .overlay(alignment: .bottom) { Rectangle().fill(theme.border).frame(height: 1) }
 
-            ForEach(rows) { row in
+            ForEach(Self.rows) { row in
                 changeRow(row)
             }
 
@@ -114,9 +114,9 @@ struct ReferenceChangesDemo: View {
 }
 
 private struct ReferenceChangeRow: Identifiable {
-    let id = UUID()
     let name: String
     let category: String
     let supplier: String
     let isRemoved: Bool
+    var id: String { name }
 }

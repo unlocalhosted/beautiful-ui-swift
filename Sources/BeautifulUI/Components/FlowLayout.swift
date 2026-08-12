@@ -7,8 +7,16 @@ struct FlowLayout: Layout {
         self.spacing = spacing
     }
 
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let rows = rows(for: proposal.width, subviews: subviews)
+    func makeCache(subviews: Subviews) -> FlowLayoutCache {
+        FlowLayoutCache(subviewSizes: subviews.map { $0.sizeThatFits(.unspecified) })
+    }
+
+    func updateCache(_ cache: inout FlowLayoutCache, subviews: Subviews) {
+        cache = makeCache(subviews: subviews)
+    }
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout FlowLayoutCache) -> CGSize {
+        let rows = rows(for: proposal.width, cache: &cache)
         let contentHeight = rows.reduce(CGFloat.zero) { partialResult, row in
             partialResult + row.height
         }
@@ -19,12 +27,11 @@ struct FlowLayout: Layout {
         return CGSize(width: width, height: height)
     }
 
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout FlowLayoutCache) {
         var origin = bounds.origin
-        for row in rows(for: bounds.width, subviews: subviews) {
+        for row in rows(for: bounds.width, cache: &cache) {
             origin.x = bounds.minX
-            for index in row.indices {
-                let size = subviews[index].sizeThatFits(.unspecified)
+            for (index, size) in zip(row.indices, row.sizes) {
                 subviews[index].place(at: origin, proposal: ProposedViewSize(size))
                 origin.x += size.width + spacing
             }
@@ -32,18 +39,22 @@ struct FlowLayout: Layout {
         }
     }
 
-    private func rows(for proposedWidth: CGFloat?, subviews: Subviews) -> [FlowLayoutRow] {
+    private func rows(for proposedWidth: CGFloat?, cache: inout FlowLayoutCache) -> [FlowLayoutRow] {
+        if cache.hasResolvedRows, cache.proposedWidth == proposedWidth {
+            return cache.rows
+        }
+
         let maxWidth = proposedWidth ?? .greatestFiniteMagnitude
         var rows: [FlowLayoutRow] = []
-        var current = FlowLayoutRow(indices: [], width: 0, height: 0)
-        for index in subviews.indices {
-            let size = subviews[index].sizeThatFits(.unspecified)
+        var current = FlowLayoutRow(indices: [], sizes: [], width: 0, height: 0)
+        for (index, size) in cache.subviewSizes.enumerated() {
             let nextWidth = current.indices.isEmpty ? size.width : current.width + spacing + size.width
             if nextWidth > maxWidth && !current.indices.isEmpty {
                 rows.append(current)
-                current = FlowLayoutRow(indices: [index], width: size.width, height: size.height)
+                current = FlowLayoutRow(indices: [index], sizes: [size], width: size.width, height: size.height)
             } else {
                 current.indices.append(index)
+                current.sizes.append(size)
                 current.width = nextWidth
                 current.height = max(current.height, size.height)
             }
@@ -51,6 +62,9 @@ struct FlowLayout: Layout {
         if !current.indices.isEmpty {
             rows.append(current)
         }
+        cache.proposedWidth = proposedWidth
+        cache.rows = rows
+        cache.hasResolvedRows = true
         return rows
     }
 }
